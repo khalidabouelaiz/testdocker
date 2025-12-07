@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat';
-
+function uuid() {
+  return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+}
 interface ProductResult {
   id: string;
   name: string;
@@ -45,7 +47,7 @@ export class ChatComponent implements OnInit {
     if (!text || this.loading) return;
 
     this.messages.push({
-      id: crypto.randomUUID(),
+      id: uuid(),
       sender: 'user',
       text,
     });
@@ -55,7 +57,7 @@ export class ChatComponent implements OnInit {
     this.chatService.sendMessageToAI(text).subscribe({
       next: (aiMessage) => {
         this.messages.push({
-          id: crypto.randomUUID(),
+          id: uuid(),
           sender: 'ai',
           text: aiMessage.text,
           products: aiMessage.products,
@@ -63,7 +65,7 @@ export class ChatComponent implements OnInit {
       },
       error: () => {
         this.messages.push({
-          id: crypto.randomUUID(),
+          id: uuid(),
           sender: 'ai',
           text: '❌ Erreur côté IA, réessaie.',
         });
