@@ -1,0 +1,62 @@
+<div class="chat-page">
+  <div class="chat-container">
+    <div class="chat-card">
+      <!-- HEADER -->
+      <header class="chat-header">
+        <div class="chat-title">🛒 AI Shop Assistant</div>
+        <div class="chat-subtitle">
+          Trouve les meilleurs prix pour vêtements, chaussures et plus.
+        </div>
+      </header>
+
+      <!-- CORPS DU CHAT -->
+      <div class="chat-inner">
+        <!-- MESSAGES -->
+        <div class="chat-messages">
+          <div *ngFor="let msg of messages" class="message-row" [ngClass]="msg.sender">
+            <div class="avatar">
+              <span *ngIf="msg.sender === 'user'">🧑</span>
+              <span *ngIf="msg.sender === 'ai'">🤖</span>
+            </div>
+
+            <div class="bubble">
+              <div class="text">
+                {{ msg.text }}
+              </div>
+
+              <!-- PRODUITS -->
+              <div class="products" *ngIf="msg.products?.length">
+                <div class="product-card" *ngFor="let p of msg.products">
+                  <div class="product-info">
+                    <div class="product-name">{{ p.name }}</div>
+                    <div class="product-price">{{ p.price }} {{ p.currency }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bulle "Typing..." -->
+          <div *ngIf="loading" class="message-row ai">
+            <div class="avatar">🤖</div>
+            <div class="bubble">Typing...</div>
+          </div>
+        </div>
+
+        <!-- INPUT -->
+        <div class="chat-input-wrapper">
+          <form class="chat-input" (submit)="$event.preventDefault(); sendMessage()">
+            <textarea
+              [(ngModel)]="userInput"
+              name="userInput"
+              placeholder='Exemple : "basket blanche taille 40, max 50€, livraison 3 jours"'
+              (keydown)="handleKeydown($event)"
+            ></textarea>
+
+            <button type="submit" [disabled]="loading || !userInput.trim()">Envoyer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
