@@ -1,25 +1,29 @@
-# Étape 1 : build Angular (front uniquement)
+# Étape 1 : build Angular
 FROM node:22-alpine AS builder
 
+# Dossier de travail
 WORKDIR /app
 
-# Installer les dépendances
+# Copier les fichiers de dépendances
 COPY package*.json ./
+
+# Installer les dépendances
 RUN npm install
 
-# Copier le code
+# Copier le reste du projet
 COPY . .
 
-# Build du front SANS SSR
-RUN npm run build -- --no-ssr --configuration=production
+# Build Angular (sortie dans dist/ai-shop-chat/browser)
+RUN npm run build
 
-# Étape 2 : Nginx pour servir les fichiers statiques
+# Étape 2 : Nginx pour servir les fichiers
 FROM nginx:alpine
 
-# Copier le build Angular
+# Copier le build Angular dans le dossier public de Nginx
 COPY --from=builder /app/dist/ai-shop-chat/browser /usr/share/nginx/html
 
-# Exposer le port HTTP
+# Exposer le port 80
 EXPOSE 80
 
+# Lancer nginx
 CMD ["nginx", "-g", "daemon off;"]
