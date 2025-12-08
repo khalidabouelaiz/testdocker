@@ -52,6 +52,12 @@
 
               <div class="products" *ngIf="msg.products?.length">
                 <div class="product-card" *ngFor="let p of msg.products">
+                  <!-- Image produit -->
+                  <div class="product-image">
+                    <img [src]="p.img" [alt]="p.name" />
+                  </div>
+
+                  <!-- Infos -->
                   <div class="product-info">
                     <div class="product-name">{{ p.name }}</div>
                     <div class="product-price">{{ p.price }} {{ p.currency }}</div>

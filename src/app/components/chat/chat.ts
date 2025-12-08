@@ -8,6 +8,7 @@ interface ProductResult {
   name: string;
   price: number;
   currency: string;
+  img: string;
 }
 
 interface ChatMessage {
