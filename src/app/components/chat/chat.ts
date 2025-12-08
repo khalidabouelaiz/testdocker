@@ -1,10 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../services/chat';
-function uuid() {
-  return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-}
+
 interface ProductResult {
   id: string;
   name: string;
@@ -19,6 +17,10 @@ interface ChatMessage {
   products?: ProductResult[];
 }
 
+function uuid() {
+  return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+}
+
 @Component({
   selector: 'app-chat',
   standalone: true,
@@ -27,32 +29,54 @@ interface ChatMessage {
   styleUrl: './chat.css',
 })
 export class ChatComponent implements OnInit {
+  // MODE
+  isSearchMode = true;
+
+  // Home search
+  searchQuery = '';
+
+  // Chat mode
   messages: ChatMessage[] = [];
   userInput = '';
   loading = false;
 
-  constructor(private chatService: ChatService) {}
+  constructor(
+    private chatService: ChatService,
+    private cdr: ChangeDetectorRef // 👈 important pour zoneless
+  ) {}
 
   ngOnInit(): void {
-    this.messages.push({
-      id: 'welcome',
-      sender: 'ai',
-      text: `Salut 👋 Je suis ton assistant shopping IA.
-Écris par exemple : "basket blanche taille 40, max 50€, livraison 5 jours".`,
-    });
+    // rien au début, on attend la recherche
+  }
+
+  startFromSearch(): void {
+    const text = this.searchQuery.trim();
+    if (!text || this.loading) return;
+
+    this.isSearchMode = false;
+    this.sendMessageInternal(text);
+    this.searchQuery = '';
+    this.cdr.detectChanges(); // 👈 on force l’update de la vue
   }
 
   sendMessage(): void {
     const text = this.userInput.trim();
     if (!text || this.loading) return;
 
+    this.sendMessageInternal(text);
+    this.userInput = '';
+    this.cdr.detectChanges();
+  }
+
+  private sendMessageInternal(text: string): void {
+    // message user
     this.messages.push({
       id: uuid(),
       sender: 'user',
       text,
     });
-    this.userInput = '';
     this.loading = true;
+    this.cdr.detectChanges();
 
     this.chatService.sendMessageToAI(text).subscribe({
       next: (aiMessage) => {
@@ -62,6 +86,7 @@ export class ChatComponent implements OnInit {
           text: aiMessage.text,
           products: aiMessage.products,
         });
+        this.cdr.detectChanges(); // 👈 update après la réponse
       },
       error: () => {
         this.messages.push({
@@ -69,17 +94,27 @@ export class ChatComponent implements OnInit {
           sender: 'ai',
           text: '❌ Erreur côté IA, réessaie.',
         });
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       complete: () => {
         this.loading = false;
+        this.cdr.detectChanges(); // 👈 enlève “Recherche en cours”
       },
     });
   }
 
-  handleKeydown(event: KeyboardEvent): void {
+  handleKeydownChat(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
+    }
+  }
+
+  handleKeydownSearch(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.startFromSearch();
     }
   }
 }

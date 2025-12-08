@@ -1,15 +1,41 @@
 <div class="chat-page">
-  <div class="chat-container">
+  <!-- ÉCRAN 1 : MOTEUR DE RECHERCHE -->
+  <div class="search-hero" *ngIf="isSearchMode">
+    <div class="search-card">
+      <div class="logo">🛒 AI Shop Assistant</div>
+      <h1>Que veux-tu acheter aujourd’hui ?</h1>
+      <p>Exemple : <strong>“basket blanche taille 40, max 50€, livraison 3 jours”</strong></p>
+
+      <form class="search-bar" (submit)="$event.preventDefault(); startFromSearch()">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          name="searchQuery"
+          (keydown)="handleKeydownSearch($event)"
+          placeholder="Décris le produit que tu cherches..."
+        />
+        <button type="submit" [disabled]="!searchQuery.trim() || loading">Rechercher</button>
+      </form>
+
+      <div class="search-hints">
+        <span>👟 baskets</span>
+        <span>👗 robe soirée</span>
+        <span>🧥 manteau hiver</span>
+        <span>👞 chaussures ville</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN 2 : CHAT -->
+  <div class="chat-container" *ngIf="!isSearchMode">
     <div class="chat-card">
       <!-- HEADER -->
       <header class="chat-header">
         <div class="chat-title">🛒 AI Shop Assistant</div>
-        <div class="chat-subtitle">
-          Trouve les meilleurs prix pour vêtements, chaussures et plus.
-        </div>
+        <div class="chat-subtitle">Dis-moi ce que tu veux, je te trouve les meilleures offres.</div>
       </header>
 
-      <!-- CORPS DU CHAT -->
+      <!-- CORPS -->
       <div class="chat-inner">
         <!-- MESSAGES -->
         <div class="chat-messages">
@@ -24,7 +50,6 @@
                 {{ msg.text }}
               </div>
 
-              <!-- PRODUITS -->
               <div class="products" *ngIf="msg.products?.length">
                 <div class="product-card" *ngFor="let p of msg.products">
                   <div class="product-info">
@@ -36,23 +61,21 @@
             </div>
           </div>
 
-          <!-- Bulle "Typing..." -->
           <div *ngIf="loading" class="message-row ai">
             <div class="avatar">🤖</div>
-            <div class="bubble">Typing...</div>
+            <div class="bubble">Recherche en cours...</div>
           </div>
         </div>
 
-        <!-- INPUT -->
+        <!-- INPUT CHAT -->
         <div class="chat-input-wrapper">
           <form class="chat-input" (submit)="$event.preventDefault(); sendMessage()">
             <textarea
               [(ngModel)]="userInput"
               name="userInput"
-              placeholder='Exemple : "basket blanche taille 40, max 50€, livraison 3 jours"'
-              (keydown)="handleKeydown($event)"
+              placeholder='Affiner ta recherche, ex : "plutôt Nike, livraison rapide"'
+              (keydown)="handleKeydownChat($event)"
             ></textarea>
-
             <button type="submit" [disabled]="loading || !userInput.trim()">Envoyer</button>
           </form>
         </div>
