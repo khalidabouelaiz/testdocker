@@ -14,6 +14,6 @@ export class ChatService {
 
     const text = `Voilà quelques idées pour "${userText}". Le moins cher est à ${products[0].price} ${products[0].currency}.`;
 
-    return of({ text, products }).pipe(delay(800));
+    return of({ text, products }).pipe(delay(1000));
   }
 }
