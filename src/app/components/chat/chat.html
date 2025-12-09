@@ -51,17 +51,26 @@
               </div>
 
               <div class="products" *ngIf="msg.products?.length">
-                <div class="product-card" *ngFor="let p of msg.products">
+                <div class="product-card" *ngFor="let p of msg.products; let i = index">
                   <!-- Image produit -->
                   <div class="product-image">
                     <img [src]="p.img" [alt]="p.name" />
                   </div>
 
-                  <!-- Infos -->
-                  <div class="product-info">
-                    <div class="product-name">{{ p.name }}</div>
-                    <div class="product-price">{{ p.price }} {{ p.currency }}</div>
+                  <!-- Ligne numéro + nom + prix -->
+                  <div class="product-header">
+                    <div class="product-index">
+                      {{ i + 1 }}
+                    </div>
+
+                    <div class="product-info">
+                      <div class="product-name">{{ p.name }}</div>
+                      <div class="product-price">{{ p.price }} {{ p.currency }}</div>
+                    </div>
                   </div>
+                  <button type="button" class="product-buy">Acheter</button>
+
+                  <!-- Bouton acheter -->
                 </div>
               </div>
             </div>
